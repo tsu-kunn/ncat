@@ -3,6 +3,14 @@
 #include "mto_dir.h"
 
 
+#ifdef __linux__
+#include <unistd.h>
+#define ISATTY(x) isatty(x)
+#else
+#include <io.h>
+#define ISATTY(x)	_isatty(x)
+#endif
+
 /*========================================================
 【機能】操作説明
 =========================================================*/
@@ -83,10 +91,17 @@ int main(int argc, char *argv[])
 
 	int opt_idx;
 
-	// オプションチェック
-	if (!(opt_idx = _check_option(argc, argv))) {
-		_release();
-		return 1;
+	// パイプラインからの入力かの確認
+	if (ISATTY(fileno(stdin))) {
+		// オプションチェック
+		if (!(opt_idx = _check_option(argc, argv))) {
+			_release();
+			return 1;
+		}
+
+		printf("stdin:terminal\n");
+	} else {
+		printf("stdin:pipe\n");
 	}
 
 	// 終了
