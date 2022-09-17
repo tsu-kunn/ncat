@@ -5,10 +5,10 @@
 
 #ifdef __linux__
 #include <unistd.h>
-#define ISATTY(x) isatty(x)
+#define ISATTY(x) isatty(fileno(x))
 #else
 #include <io.h>
-#define ISATTY(x)	_isatty(x)
+#define ISATTY(x) _isatty(_fileno(x))
 #endif
 
 /*========================================================
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 	int opt_idx;
 
 	// パイプラインからの入力かの確認
-	if (ISATTY(fileno(stdin))) {
+	if (ISATTY(stdin)) {
 		// オプションチェック
 		if (!(opt_idx = _check_option(argc, argv))) {
 			_release();
