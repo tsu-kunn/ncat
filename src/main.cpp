@@ -144,6 +144,8 @@ int main(int argc, char *argv[])
 		while (std::getline(fs, str)) {
 			output_line(str, line++);
 		}
+
+		fs.close();
 	} else {
 		// パイプラインからの入力
 		while (std::getline(std::cin, str)) {
