@@ -2,6 +2,8 @@
 #include "mto_string.h"
 #include "mto_dir.h"
 
+#include <fstream>
+#include <iomanip>
 
 #ifdef __linux__
 #include <unistd.h>
@@ -10,6 +12,18 @@
 #include <io.h>
 #define ISATTY(x) _isatty(_fileno(x))
 #endif
+
+// オプション情報
+typedef struct tagOptionParam {
+#if 1
+	sint32	padd;
+#else
+	uint8 opt_t;
+	uint8 opt_p;
+	uint8 opt_c;
+	uint8 opt_q;
+#endif
+} OptionParam;
 
 /*========================================================
 【機能】操作説明
@@ -26,9 +40,20 @@ static void _info_draw(void)
 }
 
 /*========================================================
+【機能】オプションの初期設定
+=========================================================*/
+static void _init_option(OptionParam *pOpt)
+{
+	if (pOpt == NULL)
+		return;
+
+	memcls(pOpt, sizeof(OptionParam));
+}
+
+/*========================================================
 【機能】オプションの有無を調べる
 =========================================================*/
-static int _check_option(int argc, char *argv[])
+static int _check_option(int argc, char *argv[], OptionParam *pOpt)
 {
 	int opt = 1;
 
@@ -70,6 +95,7 @@ static int _check_option(int argc, char *argv[])
 =========================================================*/
 static void _release(void)
 {
+	std::cout << "Call _release function." << std::endl;
 }
 
 
@@ -81,6 +107,10 @@ static void _release(void)
 	/*------------------------------------------------------------*/
 
 
+static void output_line(const std::string &str, const uint32 line)
+{
+	std::cout << std::setw(5) << line << ": " << str << std::endl;
+}
 
 /*========================================================
 【機能】テキスト出力ツール
@@ -88,24 +118,38 @@ static void _release(void)
 int main(int argc, char *argv[])
 {
 	SET_CRTDBG();
+	atexit(_release);
 
-	int opt_idx;
+	uint32 line = 1;
+	std::string str;
 
-	// パイプラインからの入力かの確認
 	if (ISATTY(stdin)) {
 		// オプションチェック
-		if (!(opt_idx = _check_option(argc, argv))) {
-			_release();
+		int opt_idx;
+		OptionParam optParam;
+
+		_init_option(&optParam);
+
+		if (!(opt_idx = _check_option(argc, argv, &optParam))) {
 			return 1;
 		}
 
-		printf("stdin:terminal\n");
-	} else {
-		printf("stdin:pipe\n");
-	}
+		std::ifstream fs;
 
-	// 終了
-	_release();
+		fs.open(argv[opt_idx], std::ios::in);
+		if (!fs.is_open()) {
+			std::cout << "ファイルが見つかりません: " << argv[opt_idx] << std::endl;
+		}
+
+		while (std::getline(fs, str)) {
+			output_line(str, line++);
+		}
+	} else {
+		// パイプラインからの入力
+		while (std::getline(std::cin, str)) {
+			output_line(str, line++);
+		}
+	}
 
 	return 0;
 }
