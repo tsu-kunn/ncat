@@ -16,12 +16,12 @@
 // オプション情報
 typedef struct tagOptionParam {
 #if 1
-	sint32	padd;
+	int32_t 	padd;
 #else
-	uint8 opt_t;
-	uint8 opt_p;
-	uint8 opt_c;
-	uint8 opt_q;
+	int8_t opt_t;
+	int8_t opt_p;
+	int8_t opt_c;
+	int8_r opt_q;
 #endif
 } OptionParam;
 
@@ -55,7 +55,7 @@ static void _init_option(OptionParam *pOpt)
 =========================================================*/
 static int _check_option(int argc, char *argv[], OptionParam *pOpt)
 {
-	int opt = 1;
+	int32_t opt = 1;
 
 	// 引数なし
 	if (argc == 1) {
@@ -120,12 +120,12 @@ int main(int argc, char *argv[])
 	SET_CRTDBG();
 	atexit(_release);
 
-	uint32 line = 1;
+	uint32_t line = 1;
 	std::string str;
 
 	if (ISATTY(stdin)) {
 		// オプションチェック
-		int opt_idx;
+		int32_t opt_idx;
 		OptionParam optParam;
 
 		_init_option(&optParam);
