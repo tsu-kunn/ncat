@@ -15,13 +15,13 @@
 
 // オプション情報
 typedef struct tagOptionParam {
-#if 1
+#if 0 
 	int32_t 	padd;
 #else
-	int8_t opt_t;
-	int8_t opt_p;
-	int8_t opt_c;
-	int8_r opt_q;
+	int8_t opt_n;
+	int8_t opt_h;
+	int8_t opt_p0;
+	int8_t opt_p1;
 #endif
 } OptionParam;
 
@@ -35,6 +35,8 @@ static void _info_draw(void)
 	printf("\n");
 	printf("ncat [option] [in file] ...\n");
 	printf("    [option]\n");
+    printf("       -n : 行番号なし\n");
+    printf("       -h : シンタックスハイライトなし\n");
 	printf("       -? : ヘルプ出力\n");
 	printf("\n");
 }
@@ -71,20 +73,28 @@ static int _check_option(int argc, char *argv[], OptionParam *pOpt)
 	// オプションがある？
 	while (argv[opt][0] == '-') {
 		switch (argv[opt][1]) {
+        case 'n':
+            pOpt->opt_n = TRUE;
+            break;
+        case 'h':
+            pOpt->opt_h = TRUE;
+            break;
 		case '?':
 			_info_draw();
 			return 0;
 
 		default:
 			printf("サポートされていない拡張子です\n");
-			printf("『mkedat -?』でヘルプ\n");
+			printf("『ncat -?』でヘルプ\n");
 			return 0;
 		}
 
-		if (++opt > 2) {
-			printf("オプションの指定が不正です。\n");
-			return 0;
-		}
+		if (++opt >= argc) break;
+	}
+
+	if (opt > (argc - 1)) { // -1:入力
+		printf("オプションの指定が不正です。\n");
+		return 0;
 	}
 
 	return opt;
@@ -95,7 +105,6 @@ static int _check_option(int argc, char *argv[], OptionParam *pOpt)
 =========================================================*/
 static void _release(void)
 {
-	std::cout << "Call _release function." << std::endl;
 }
 
 
